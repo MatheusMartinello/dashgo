@@ -15,7 +15,7 @@ import { Input } from "../../components/Form/Input";
 import Header from "../../components/Header";
 import SideBar from "../../components/SideBar";
 import * as yup from "yup";
-import { SubmitErrorHandler, useForm } from "react-hook-form";
+import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 
 type CreateUserFormData = {
   email: String;
@@ -36,7 +36,7 @@ export default function CreateUser() {
   const { register, handleSubmit, formState } = useForm({
     resolver: yupResolver(createUserFormSchema),
   });
-  const handleSignIn: SubmitErrorHandler<CreateUserFormData> = async (
+  const handleCreateUser: SubmitHandler<CreateUserFormData> = async (
     values
   ) => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -48,12 +48,19 @@ export default function CreateUser() {
       <Header />
       <Flex w="100%" my="6" maxWidth="1480" mx="auto" px="6">
         <SideBar />
-        <Box flex="1" borderRadius={8} bg="gray.800" p={["6", "8"]}>
+        <Box
+          flex="1"
+          borderRadius={8}
+          bg="gray.800"
+          p={["6", "8"]}
+          as="form"
+          onSubmit={handleSubmit(handleCreateUser)}
+        >
           <Heading size="lg" fontWeight="normal">
             Criar Usuário
           </Heading>
           <Divider my="6" borderColor="gray.700" />
-          <VStack spacing="8" as="form" onSubmit={handleSubmit(handleSignIn)}>
+          <VStack spacing="8">
             <SimpleGrid minChildWidth="240px" spacing={["6", "8"]} w="100%">
               <Input
                 name="name"
@@ -75,7 +82,6 @@ export default function CreateUser() {
                 label="Senha"
                 error={errors.password}
                 {...register("password")}
-                {...register("name")}
               />
               <Input
                 name="passwordConfirmation"
@@ -91,7 +97,11 @@ export default function CreateUser() {
               <Link href="/users" passHref={true}>
                 <Button colorScheme={"whiteAlpha"}>Cancelar</Button>
               </Link>
-              <Button colorScheme={"pink"} isLoading={formState.isSubmitting}>
+              <Button
+                colorScheme={"pink"}
+                isLoading={formState.isSubmitting}
+                type="submit"
+              >
                 Salvar
               </Button>
             </HStack>
