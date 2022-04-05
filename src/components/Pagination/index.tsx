@@ -1,7 +1,35 @@
 import { Box, Button, Stack } from "@chakra-ui/react";
 import { PaginationItem } from "./PaginationItem";
+interface PaginationProps {
+  totalCounterOfRegisters: number;
+  totalItensPerPage?: number;
+  currentPage?: number;
+  onPageChange?: (page: number) => void;
+}
+const siblingsCount = 1;
+function generatePagesArray(from: number, to: number) {
+  return [...new Array(to - from)]
+    .map((_, index) => {
+      return from + index + 1;
+    })
+    .filter((page) => page > 0);
+}
+export default function Pagination({
+  totalCounterOfRegisters,
+  currentPage = 1,
+  onPageChange,
+  totalItensPerPage = 10,
+}: PaginationProps) {
+  const lastPage = Math.floor(totalCounterOfRegisters / totalItensPerPage);
 
-export default function Pagination() {
+  const previousPage =
+    currentPage > 1
+      ? generatePagesArray(currentPage - 1 - siblingsCount, currentPage - 1)
+      : [];
+  const nextPage =
+    currentPage < lastPage
+      ? generatePagesArray(Math.min(currentPage + siblingsCount), lastPage)
+      : [];
   return (
     <Stack
       direction={["column", "row"]}
@@ -14,11 +42,27 @@ export default function Pagination() {
         <strong>0 </strong> - <strong> 10 </strong> de <strong> 100 </strong>
       </Box>
       <Stack spacing="2" direction="row">
-        <PaginationItem pageNumber={1} isCurrent={true} />
-        <PaginationItem pageNumber={2} isCurrent={false} />
-        <PaginationItem pageNumber={3} isCurrent={false} />
-        <PaginationItem pageNumber={4} isCurrent={false} />
-        <PaginationItem pageNumber={5} isCurrent={false} />
+        {previousPage.length > 0 &&
+          previousPage.map((page) => {
+            return (
+              <PaginationItem
+                key={page}
+                pageNumber={currentPage - 1}
+                isCurrent={false}
+              />
+            );
+          })}
+        <PaginationItem pageNumber={currentPage} isCurrent={true} />
+        {nextPage.length > 0 &&
+          nextPage.map((page) => {
+            return (
+              <PaginationItem
+                key={page}
+                pageNumber={currentPage + 1}
+                isCurrent={false}
+              />
+            );
+          })}
       </Stack>
     </Stack>
   );

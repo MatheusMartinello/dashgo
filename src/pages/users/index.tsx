@@ -16,25 +16,14 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { useEffect } from "react";
 import { RiAddLine, RiPencilLine } from "react-icons/ri";
 import Header from "../../components/Header";
 import Pagination from "../../components/Pagination";
 import SideBar from "../../components/SideBar";
-import { useQuery } from "react-query";
+import { useUsers } from "../../services/hooks/useUser";
 export default function UsersList() {
-  const { data, isLoading, error } = useQuery("users", async () => {
-    const response = await fetch("localhost:3000/fakeApi/users");
-    console.log(response);
-    const data = await response.json();
+  const { data, isLoading, error, isFetching } = useUsers();
 
-    return data;
-  });
-  useEffect(() => {
-    fetch("http://localhost:3000/api/users").then((data) => {
-      console.log(data);
-    });
-  }, []);
   const isWideVersion = useBreakpointValue({
     base: false,
     lg: true,
@@ -49,6 +38,9 @@ export default function UsersList() {
           <Flex mb="8" align="center" justify="space-between">
             <Heading size="lg" fontWeight="normal">
               Listagem de Usuários
+              {!isLoading && isFetching && (
+                <Spinner size="sm" color="gray.500" ml="2" />
+              )}
             </Heading>
             <Link href="/users/create" passHref={true}>
               <Button
@@ -84,34 +76,42 @@ export default function UsersList() {
                   </Tr>
                 </Thead>
                 <Tbody>
-                  <Tr>
-                    <Td px={["4", "4", "6"]}>
-                      <Checkbox colorScheme="pink" />
-                    </Td>
-                    <Td>
-                      <Box>
-                        <Text fontSize="bold">Matheus Martinello</Text>
-                        <Text fontSize="sm" color={"gray.300"}>
-                          matheusmartinello@email.com
-                        </Text>
-                      </Box>
-                    </Td>
-                    {isWideVersion && <Td>19 de fevereiro, 2022</Td>}
-                    <Td>
-                      <Button
-                        as="a"
-                        size="sm"
-                        fontSize="sm"
-                        colorScheme="purple"
-                        leftIcon={<Icon as={RiPencilLine} fontSize="16x" />}
-                      >
-                        {isWideVersion ? "Editar" : ""}
-                      </Button>
-                    </Td>
-                  </Tr>
+                  {data.map((user) => {
+                    return (
+                      <Tr key={user.id}>
+                        <Td px={["4", "4", "6"]}>
+                          <Checkbox colorScheme="pink" />
+                        </Td>
+                        <Td>
+                          <Box>
+                            <Text fontSize="bold">{user.name}</Text>
+                            <Text fontSize="sm" color={"gray.300"}>
+                              user.email
+                            </Text>
+                          </Box>
+                        </Td>
+                        {isWideVersion && <Td>{user.createdAt}</Td>}
+                        <Td>
+                          <Button
+                            as="a"
+                            size="sm"
+                            fontSize="sm"
+                            colorScheme="purple"
+                            leftIcon={<Icon as={RiPencilLine} fontSize="16x" />}
+                          >
+                            {isWideVersion ? "Editar" : ""}
+                          </Button>
+                        </Td>
+                      </Tr>
+                    );
+                  })}
                 </Tbody>
               </Table>
-              <Pagination />
+              <Pagination
+                totalCounterOfRegisters={200}
+                currentPage={5}
+                onPageChange={() => {}}
+              />
             </>
           )}
         </Box>
